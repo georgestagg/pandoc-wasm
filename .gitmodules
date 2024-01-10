@@ -1,0 +1,3 @@
+[submodule "toml-parser"]
+	path = toml-parser
+	url = https://github.com/georgestagg/toml-parser.git
