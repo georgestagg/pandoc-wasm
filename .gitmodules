@@ -7,3 +7,6 @@
 [submodule "pandoc"]
 	path = pandoc
 	url = https://github.com/jgm/pandoc.git
+[submodule "zip-archive"]
+	path = zip-archive
+	url = https://github.com/georgestagg/zip-archive.git
