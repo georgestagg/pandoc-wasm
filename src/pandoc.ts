@@ -9,6 +9,11 @@ import yaml from "js-yaml";
 
 const MAX_HEAP = 1000000;
 
+const srcUrl = (globalThis as any).document
+  ? (document.currentScript as HTMLScriptElement).src
+  : self.location.href;
+const baseUrl = srcUrl.substring(0, srcUrl.lastIndexOf('/'));
+
 export type PandocParams = {
   text: string;
   options: { [key: string]: any } & {
@@ -35,9 +40,7 @@ export class Pandoc {
   dataFiles: { [key: string]: ArrayBufferLike } = {};
 
   constructor() {
-    console.log("location", self.location);
-
-    this.wasm = fetch("./pandoc-wasm.wasm.gz")
+    this.wasm = fetch(`${baseUrl}/pandoc-wasm.wasm.gz`)
       .then((response) => response.arrayBuffer())
       .then((gz) => Pandoc.pako.ungzip(gz))
       .then((buf) => WebAssembly.compile(buf));
@@ -54,7 +57,7 @@ export class Pandoc {
   async init() {
     await this.instance;
     await this.#downloadData();
-    return;
+    return this;
   }
 
   async #downloadData() {
@@ -62,9 +65,9 @@ export class Pandoc {
       return this.dataFiles;
     }
 
-    const gz = await fetch("./pandoc-data.data.gz");
+    const gz = await fetch(`${baseUrl}/pandoc-data.data.gz`);
     const data = Pandoc.pako.ungzip(await gz.arrayBuffer());
-    const metaFile = await fetch("./pandoc-data.metadata");
+    const metaFile = await fetch(`${baseUrl}/pandoc-data.metadata`);
     const metadata = await metaFile.json();
     if (metadata.remote_package_size != data.byteLength) {
       throw new Error(
