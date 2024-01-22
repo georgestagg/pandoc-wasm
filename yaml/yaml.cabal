@@ -1,0 +1,23 @@
+cabal-version: 2.4
+name: yaml
+version: 0.11
+license: GPL-2.0-or-later
+author: George Stagg <georgestagg@gmail.com>
+description:  A shim for the Yaml Haskell library for running under Asterius.
+              Uses the js-yaml JavaScript library, via Asterius's FFI, to parse
+              Yaml documents and convert to JSON string(s). Finally Data.Aeson
+              is used to convert the result into Haskell objects.
+
+library
+  exposed-modules: Data.Yaml
+  ghc-options: -Wall -Wcompat
+  hs-source-dirs: src
+  other-modules: Asterius.Aeson,
+                 Asterius.ByteString,
+                 Asterius.Text,
+                 Asterius.UTF8
+  build-depends: base,
+                 aeson,
+                 bytestring,
+                 text
+  default-language: Haskell2010
