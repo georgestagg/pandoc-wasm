@@ -2,5 +2,6 @@
 /dist
 /src/_generated
 /www
+/example/www
 node_modules
 cabal.project.local*

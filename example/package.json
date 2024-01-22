@@ -1,0 +1,14 @@
+{
+  "name": "pandoc-wasm-example",
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "mkdir -p www && cp node_modules/pandoc-wasm/dist/pandoc-* www && esbuild --bundle src/index.js src/index.html --loader:.html=copy --outdir=www",
+    "serve": "npm run build && esbuild --bundle src/index.js src/index.html  --loader:.html=copy --outdir=www --watch --servedir=www"
+  },
+  "dependencies": {
+    "esbuild": "^0.19.11",
+    "pandoc-wasm": "file:.."
+  }
+}

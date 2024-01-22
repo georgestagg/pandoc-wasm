@@ -32,7 +32,7 @@ $(OUTPUT)/pandoc-wasm.wasm: src/Pandoc/Main.hs
 	   --output-directory $(OUTPUT) --yolo
 # Grow wasm memory heap as part of Haskell runtime initalisation
 	mv -f $(OUTPUT)/rts.mjs $(OUTPUT)/rts.mjs.orig
-	awk '/WebAssembly.instantiate/ {$$0=$$0" i.exports.memory.grow(req.heap);"} 1' \
+	awk '/WebAssembly.instantiate/ {$$0=$$0" i.exports.memory.grow(1024);"} 1' \
 	  $(OUTPUT)/rts.mjs.orig > $(OUTPUT)/rts.mjs
 
 PHONY: docker-container
