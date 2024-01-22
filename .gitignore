@@ -1,1 +1,6 @@
+/dist-newstyle
+/dist
+/src/_generated
+/www
 node_modules
+cabal.project.local*
