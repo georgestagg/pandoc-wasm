@@ -1,0 +1,38 @@
+cabal-version: 2.4
+name: pandoc-wasm
+version: 0.0.0.1
+license: GPL-2.0-or-later
+author: George Stagg <georgestagg@gmail.com>
+description:  Pandoc wrapper for Asterius.
+
+executable pandoc-wasm
+  ghc-options: -Wall
+               -optl--export-function=runPandoc
+               -optl--export-function=getVersion
+  hs-source-dirs: src/Pandoc
+  main-is: Main.hs
+  other-modules:  Asterius.Aeson,
+                  Asterius.ByteString,
+                  Asterius.Text,
+                  Asterius.UTF8
+                  Text.Readers,
+                  Text.Writers
+  build-depends:  base,
+                  aeson,
+                  base64-bytestring,
+                  bytestring,
+                  containers,
+                  data-default,
+                  hashable == 1.3.2.0,
+                  mtl,
+                  network == 3.1.1.1,
+                  ordered-containers == 0.2.3,
+                  pandoc == 3.1.11.1,
+                  pandoc-types,
+                  skylighting,
+                  text,
+                  time,
+                  toml-parser,
+                  unordered-containers == 0.2.14.0,
+                  zip-archive
+  default-language: Haskell2010

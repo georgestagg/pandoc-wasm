@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pandoc on WebAssembly</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <fieldset disabled id="allControls" />
+        <div class="row justify-content-center">
+            <div class="col col-lg-10 min-vh-100 d-flex flex-column">
+                <div class="row mx-4 mt-4 text-center">
+                    <h1 class="display-5 fw-bold text-body-emphasis">Pandoc on WebAssembly</h1>
+                    <div class="col-lg-8 mx-auto">
+                        <p class="lead">
+                            The universal document converter, compiled for WebAssembly and running in the browser.
+                        </p>
+                    </div>
+                    <div class="col-lg-8 mx-auto" id="downloadMessage">
+                        <div class="spinner-border" role="status"></div>
+                        <p>Downloading Pandoc...</p>
+                    </div>
+                </div>
+                <div class="row justify-content-around px-3 mb-3 flex-grow-1">
+                    <div class="col-5 d-flex flex-column" style="width:48%">
+                        <div class="form-floating mt-3">
+                            <select class="form-select" autocomplete="off" id="inputSelect"
+                                aria-label="Input format selection"></select>
+                            <label for="inputSelect">Input format</label>
+                        </div>
+                        <div class="form-floating mt-3 flex-grow-1">
+                            <textarea class="form-control h-100" autocomplete="off" id="inputTextArea"></textarea>
+                            <label for="inputTextArea">Input</label>
+                        </div>
+                        <div class="mt-3" style="display: none">
+                            <label for="inputFile" class="form-label">Input file</label>
+                            <input class="form-control" type="file" autocomplete="off" id="inputFile">
+                        </div>
+                        <div class="mt-3">
+                            <label for="supportFiles" class="form-label">Support files</label>
+                            <input class="form-control" type="file" autocomplete="off" id="supportFiles" multiple>
+                        </div>
+                        <div class="accordion my-3" id="optionsContainer">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="optionsHeading">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#optionsCollapse" aria-expanded="false"
+                                        aria-controls="optionsCollapse">
+                                        Options
+                                    </button>
+                                </h2>
+                                <div id="optionsCollapse" class="accordion-collapse collapse"
+                                    aria-labelledby="optionsHeading" data-bs-parent="#optionsContainer">
+                                    <div class="accordion-body">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" autocomplete="off" type="checkbox" id="standaloneCheck">
+                                            <label class="form-check-label" for="standaloneCheck">Standalone</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" autocomplete="off" type="checkbox" id="embedCheck" checked>
+                                            <label class="form-check-label" for="embedCheck">Embed Resources</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" autocomplete="off" type="checkbox" id="citeprocCheck" checked>
+                                            <label class="form-check-label" for="citeprocCheck">Process Citations</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-1 d-flex flex-grow-0 flex-column align-items-center align-self-center"
+                        style="width:4%">
+                        <span class="fs-1">&rarr;</span>
+                    </div>
+                    <div class="col-5 d-flex flex-column" style="width:48%">
+                        <div class="form-floating mt-3">
+                            <select class="form-select" autocomplete="off" id="outputSelect"
+                                aria-label="Input format selection"></select>
+                            <label for="outputSelect">Output format</label>
+                        </div>
+                        <div class="form-floating mt-3 flex-grow-1">
+                            <textarea readonly class="form-control h-100" autocomplete="off"
+                                id="outputTextArea"></textarea>
+                            <label for="outputTextArea">Output</label>
+                        </div>
+                        <div class="form-floating my-3">
+                            <button type="button" class="btn btn-primary" id="downloadButton">Download output</button>
+                        </div>
+                        <div class="alert alert-danger my-3" style="display: none;" id="errorAlert" role="alert">
+                            <h4 class="alert-heading">Apologies!</h4>
+                            <p>Pandoc failed to convert your document:<br><code id="errorAlertText"></code></p>
+                            <hr>
+                            <p>Features currently unsupported under WebAssembly will emit errors of the form <code
+                                    style="white-space: nowrap;">JSException[...]wasm-function[000000]@0xabcdef</code>.
+                                We hope
+                                support will improve over time.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-center mb-1">
+                    <span class="small fw-light">Pandoc version: <span id="versionText">Loading...</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="./app.js"></script>
+</body>
+
+</html>
