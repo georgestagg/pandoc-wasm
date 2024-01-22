@@ -1,0 +1,53 @@
+{
+  "name": "pandoc-wasm",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "The pandoc universal markup converter compiled for WebAssembly for use in a web browser and node.",
+  "keywords": [
+    "pandoc",
+    "wasm",
+    "webassembly"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "dist/pandoc.js",
+  "types": "pandoc.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/pandoc.cjs.js",
+      "default": "./dist/pandoc.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "tsc --emitDeclarationOnly && esbuild src/pandoc.ts --platform=browser --outfile=dist/pandoc.cjs.js --bundle && esbuild src/pandoc.ts --platform=neutral --outfile=dist/pandoc.js --bundle",
+    "serve": "esbuild --bundle src/app/app.ts src/app/worker.ts src/app/index.html --outdir=www --loader:.html=copy --watch --servedir=www"
+  },
+  "author": "George Stagg <georgestagg@gmail.com>",
+  "license": "GPL-2.0-or-later",
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.10.6",
+    "@types/pako": "^2.0.3",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "comlink": "^4.4.1",
+    "crc": "^4.3.2",
+    "esbuild": "^0.19.11",
+    "eslint": "^8.56.0",
+    "eslint-plugin-jest": "^27.6.3",
+    "http-server": "^14.1.1",
+    "jest": "^29.7.0",
+    "js-yaml": "^4.1.0",
+    "pako": "^2.1.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
