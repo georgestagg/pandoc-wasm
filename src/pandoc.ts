@@ -7,12 +7,10 @@ import * as pako from "pako";
 import crc32 from "crc/calculators/crc32";
 import yaml from "js-yaml";
 
-const MAX_HEAP = 1000000;
-
 const srcUrl = (globalThis as any).document
   ? (document.currentScript as HTMLScriptElement).src
   : self.location.href;
-const baseUrl = srcUrl.substring(0, srcUrl.lastIndexOf('/'));
+const baseUrl = srcUrl.substring(0, srcUrl.lastIndexOf("/"));
 
 export type PandocParams = {
   text: string;
@@ -30,12 +28,10 @@ export class Pandoc {
   static yaml: typeof yaml = yaml;
   #runQueue: Array<{
     params: PandocParams;
-    resolve: (_: any) => void,
-    reject: (_: any) => void
-  }
-  > = [];
+    resolve: (_: any) => void;
+    reject: (_: any) => void;
+  }> = [];
   instance: Promise<any>;
-  heap: number = 1000;
   wasm: Promise<WebAssembly.Module>;
   dataFiles: { [key: string]: ArrayBufferLike } = {};
 
@@ -45,10 +41,9 @@ export class Pandoc {
       .then((gz) => Pandoc.pako.ungzip(gz))
       .then((buf) => WebAssembly.compile(buf));
 
-    this.instance = this.wasm
-      .then((module) => rts.newAsteriusInstance(
-        Object.assign(req, { module, heap: this.heap })
-      ));
+    this.instance = this.wasm.then((module) =>
+      rts.newAsteriusInstance(Object.assign(req, { module }))
+    );
 
     this.#downloadData();
     this.#installErrorHandler();
@@ -82,34 +77,37 @@ export class Pandoc {
     return this.dataFiles;
   }
 
-  /* 
-   * Asterius's GC is a little fragile. Here we attempt to detect if things
-   * have gone wrong and recover by creating a new pandoc Wasm instance from
-   * scratch. We'll also grow the heap, so that there's more space to work with
-   * next time.
+  /*
+   * Asterius's GC is a little fragile, so we try to avoid it. Here we detect if
+   * we're out of memory and try to recover by creating a new pandoc Wasm
+   * instance from scratch.
    */
   #installErrorHandler() {
-    (globalThis as any).onerror = (event: Event, source: string, lineno: number, colno: number, error: Error) => {
+    (globalThis as any).onerror = (
+      event: Event,
+      source: string,
+      lineno: number,
+      colno: number,
+      error: Error
+    ) => {
       // Assume any uncaught RangeError is due to Asterius GC failure
+      // TODO: Work out why GC fails, or switch to ghc-wasm-meta
       if (error.name === "RangeError") {
-        this.heap = this.heap * 10 > MAX_HEAP ? MAX_HEAP : this.heap * 10;
-        console.warn(`An uncaught RangeError occurred! Restarting Pandoc with heap of size: ${this.heap}.`);
-
-        // Give up on any current requests
-        this.#runQueue.forEach((q) => q.reject(`Out of memory in Wasm heap. Restarting Pandoc with heap of size: ${this.heap}.`));
+        this.#runQueue.forEach((q) =>
+          q.reject("Out of memory in Wasm heap. Reinitialising Pandoc.")
+        );
 
         // Restart the instance
-        this.instance = this.wasm
-          .then((module) => rts.newAsteriusInstance(
-            Object.assign(req, { module, heap: this.heap })
-          ));
+        this.instance = this.wasm.then((module) =>
+          rts.newAsteriusInstance(Object.assign(req, { module }))
+        );
       } else {
         throw error;
       }
-    }
+    };
   }
 
-  runPandoc(_params: PandocParams): Promise<string> {
+  run(_params: PandocParams): Promise<string> {
     const params = {
       text: _params.text,
       options: _params.options,
@@ -118,7 +116,10 @@ export class Pandoc {
         Object.entries({
           ..._params.files,
           ...this.dataFiles,
-        }).map(([k, v]) => [k, typeof v === 'string' ? v : utils.arrayBufferToBase64(v)])
+        }).map(([k, v]) => [
+          k,
+          typeof v === "string" ? v : utils.arrayBufferToBase64(v),
+        ])
       ),
     };
     let q: any;
@@ -128,15 +129,14 @@ export class Pandoc {
       this.instance
         .then((instance) => instance.exports.runPandoc(params))
         .then((ret) => {
-          if ('error' in ret) {
+          if ("error" in ret) {
             reject(ret.error);
           } else {
             resolve(ret.output);
           }
-
         })
         .catch((err) => reject(err));
-    }).finally(() => this.#runQueue = this.#runQueue.filter((x) => x !== q));
+    }).finally(() => (this.#runQueue = this.#runQueue.filter((x) => x !== q)));
   }
 
   async getVersion(): Promise<string> {

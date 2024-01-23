@@ -9,6 +9,7 @@ const pandocWorker = new PandocWorker();
 (globalThis as any).pandocWorker = pandocWorker;
 
 let dirty = false;
+let busy = false;
 const params: PandocParams = {
   text: "",
   options: {
@@ -320,13 +321,14 @@ function downloadData(data: Uint8Array, name: string, mime: string) {
 
 // Pandoc runner
 setInterval(() => {
-  if (!dirty) {
+  if (!dirty || busy) {
     return;
   }
   dirty = false;
+  busy = true;
 
   pandocWorker
-    .then((pandoc) => pandoc.runPandoc(params))
+    .then((pandoc) => pandoc.run(params))
     .then((result) => {
       outputTextArea.value = result;
       if (outputFormats[params.options.to as keyof typeof outputFormats].binary) {
@@ -344,5 +346,7 @@ setInterval(() => {
       outputTextArea.value = '';
       outputTextArea.parentElement!.style.display = "none";
       downloadButton.parentElement!.style.display = "none";
+    }).finally(() => {
+      busy = false;
     });
-}, 100);
+}, 500);
