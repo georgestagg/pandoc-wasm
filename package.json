@@ -15,7 +15,6 @@
   "types": "pandoc.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/pandoc.cjs.js",
       "default": "./dist/pandoc.js"
     }
   },
@@ -27,15 +26,16 @@
     }
   },
   "scripts": {
-    "build": "tsc --emitDeclarationOnly && esbuild src/pandoc.ts --platform=browser --outfile=dist/pandoc.cjs.js --bundle && esbuild src/pandoc.ts --platform=neutral --outfile=dist/pandoc.js --bundle",
-    "serve": "esbuild --bundle src/app/app.ts src/app/worker.ts src/app/index.html --outdir=www --loader:.html=copy --watch --servedir=www"
+    "build": "tsc --emitDeclarationOnly && tsx esbuild.ts",
+    "watch": "tsx esbuild.ts --watch",
+    "serve": "tsx esbuild.ts --serve"
   },
   "author": "George Stagg <georgestagg@gmail.com>",
   "license": "GPL-2.0-or-later",
   "devDependencies": {
     "@types/jest": "^29.5.11",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.10.6",
+    "@types/node": "^20.11.5",
     "@types/pako": "^2.0.3",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "comlink": "^4.4.1",
