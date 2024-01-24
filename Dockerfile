@@ -5,8 +5,9 @@ ARG INSTALL=/root/_ahc/install
 
 COPY src /root/pandoc-wasm/src
 COPY toml-parser /root/pandoc-wasm/toml-parser
+COPY digest /root/pandoc-wasm/digest
 COPY yaml /root/pandoc-wasm/yaml
-COPY zip-archive /root/pandoc-wasm/zip-archive
+COPY zlib /root/pandoc-wasm/zlib
 COPY cabal.project /root/pandoc-wasm/cabal.project
 COPY pandoc-wasm.cabal /root/pandoc-wasm/pandoc-wasm.cabal
 COPY asterius/ghc-toolkit/boot-libs/asterius-prelude/src/Asterius /root/pandoc-wasm/src/Pandoc/Asterius

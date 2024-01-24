@@ -1,6 +1,7 @@
 packages: .
           ./toml-parser/toml-parser.cabal
-          ./zip-archive/zip-archive.cabal
+          ./digest/digest.cabal
           ./yaml/yaml.cabal
+          ./zlib/zlib.cabal
 package crypton
     flags: +integer-simple -integer-gmp

@@ -1,0 +1,24 @@
+cabal-version: 2.4
+name: zlib
+version: 0.6.3.0
+license: GPL-2.0-or-later
+author: George Stagg <georgestagg@gmail.com>
+description:  A shim for the zlib Haskell library for running under Asterius.
+              Uses the pako JavaScript library, via Asterius's FFI, to partially
+              re-implement the Zlib and GZip module fuctionality.
+
+library
+  exposed-modules: Codec.Compression.GZip,
+                   Codec.Compression.Zlib,
+                   Codec.Compression.Zlib.Raw
+  ghc-options: -Wall -Wcompat
+  hs-source-dirs: src
+  other-modules: Asterius.Aeson,
+                 Asterius.ByteString,
+                 Asterius.Text,
+                 Asterius.UTF8
+  build-depends: base,
+                 aeson,
+                 bytestring,
+                 text
+  default-language: Haskell2010

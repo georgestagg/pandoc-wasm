@@ -4,7 +4,9 @@ import req from "./_generated/pandoc-wasm.req.mjs";
 import * as rts from "./_generated/rts.mjs";
 import * as utils from "./utils";
 import * as pako from "pako";
-import crc32 from "crc/calculators/crc32";
+import * as crc32 from "crc-32/crc32";
+import * as crc32c from "crc-32/crc32c";
+import { default as adler32 } from "adler-32";
 import yaml from "js-yaml";
 
 const srcUrl = (globalThis as any).document
@@ -24,33 +26,31 @@ export type PandocParams = {
 
 export class Pandoc {
   static pako: typeof pako = pako;
-  static crc32: typeof crc32 = crc32;
+  static digest: {
+    crc32: typeof crc32;
+    crc32c: typeof crc32c;
+    adler32: typeof adler32;
+   } = { crc32, crc32c, adler32 };
   static yaml: typeof yaml = yaml;
   #runQueue: Array<{
     params: PandocParams;
     resolve: (_: any) => void;
     reject: (_: any) => void;
   }> = [];
-  instance: Promise<any>;
-  wasm: Promise<WebAssembly.Module>;
+  wasm: Promise<Uint8Array>;
   dataFiles: { [key: string]: ArrayBufferLike } = {};
 
   constructor() {
     this.wasm = fetch(`${baseUrl}/pandoc-wasm.wasm.gz`)
       .then((response) => response.arrayBuffer())
-      .then((gz) => Pandoc.pako.ungzip(gz))
-      .then((buf) => WebAssembly.compile(buf));
-
-    this.instance = this.wasm.then((module) =>
-      rts.newAsteriusInstance(Object.assign(req, { module }))
-    );
+      .then((gz) => Pandoc.pako.ungzip(gz));
 
     this.#downloadData();
     this.#installErrorHandler();
   }
 
   async init() {
-    await this.instance;
+    await this.wasm;
     await this.#downloadData();
     return this;
   }
@@ -79,8 +79,7 @@ export class Pandoc {
 
   /*
    * Asterius's GC is a little fragile, so we try to avoid it. Here we detect if
-   * we're out of memory and try to recover by creating a new pandoc Wasm
-   * instance from scratch.
+   * we're out of memory and reject with an error message.
    */
   #installErrorHandler() {
     (globalThis as any).onerror = (
@@ -92,15 +91,12 @@ export class Pandoc {
     ) => {
       // Assume any uncaught RangeError is due to Asterius GC failure
       // TODO: Work out why GC fails, or switch to ghc-wasm-meta
-      if (error.name === "RangeError") {
-        this.#runQueue.forEach((q) =>
-          q.reject("Out of memory in Wasm heap. Reinitialising Pandoc.")
-        );
-
-        // Restart the instance
-        this.instance = this.wasm.then((module) =>
-          rts.newAsteriusInstance(Object.assign(req, { module }))
-        );
+      if (error.name === "RangeError" || error.name === "RuntimeError") {
+        const message =
+          error.name === "RangeError"
+            ? "RangeError: Out of memory in Wasm heap."
+            : `${error.name}: ${error.message}`;
+        this.#runQueue.forEach((q) => q.reject(message));
       } else {
         throw error;
       }
@@ -126,7 +122,14 @@ export class Pandoc {
     return new Promise<string>((resolve, reject) => {
       q = { params, resolve, reject };
       this.#runQueue.push(q);
-      this.instance
+
+      // TODO: Once GC is working, we won't need to recompile and instantiate
+      // Pandoc again for each run.
+      this.wasm
+        .then((buf) => WebAssembly.compile(buf))
+        .then((module) =>
+          rts.newAsteriusInstance(Object.assign(req, { module }))
+        )
         .then((instance) => instance.exports.runPandoc(params))
         .then((ret) => {
           if ("error" in ret) {
@@ -136,11 +139,13 @@ export class Pandoc {
           }
         })
         .catch((err) => reject(err));
+
     }).finally(() => (this.#runQueue = this.#runQueue.filter((x) => x !== q)));
   }
 
   async getVersion(): Promise<string> {
-    const instance = await this.instance;
+    const module = await this.wasm.then((buf) => WebAssembly.compile(buf));
+    const instance = await rts.newAsteriusInstance(Object.assign(req, { module }));
     return await instance.exports.getVersion();
   }
 }

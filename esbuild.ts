@@ -31,6 +31,7 @@ function build(
     bundle: true,
     entryPoints: inputs,
     loader: { ".html": "copy" },
+    mainFields: ['module', 'main'],
     minify,
     outdir: outdir,
     platform: platform,
