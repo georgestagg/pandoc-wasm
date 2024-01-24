@@ -59,16 +59,20 @@
                                     aria-labelledby="optionsHeading" data-bs-parent="#optionsContainer">
                                     <div class="accordion-body">
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" autocomplete="off" type="checkbox" id="standaloneCheck">
+                                            <input class="form-check-input" autocomplete="off" type="checkbox"
+                                                id="standaloneCheck">
                                             <label class="form-check-label" for="standaloneCheck">Standalone</label>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" autocomplete="off" type="checkbox" id="embedCheck" checked>
+                                            <input class="form-check-input" autocomplete="off" type="checkbox"
+                                                id="embedCheck" checked>
                                             <label class="form-check-label" for="embedCheck">Embed Resources</label>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" autocomplete="off" type="checkbox" id="citeprocCheck" checked>
-                                            <label class="form-check-label" for="citeprocCheck">Process Citations</label>
+                                            <input class="form-check-input" autocomplete="off" type="checkbox"
+                                                id="citeprocCheck" checked>
+                                            <label class="form-check-label" for="citeprocCheck">Process
+                                                Citations</label>
                                         </div>
                                     </div>
                                 </div>
@@ -98,9 +102,9 @@
                             <p>Pandoc failed to convert your document:<br><code id="errorAlertText"></code></p>
                             <hr>
                             <p>Features currently unsupported under WebAssembly will emit errors of the form <code
-                                    style="white-space: nowrap;">JSException[...]wasm-function[000000]@0xabcdef</code>.
-                                We hope
-                                support will improve over time.</p>
+                                    style="white-space: nowrap;">JSException[...]wasm-function[000000]@0xabcdef</code>
+                                or <code>RuntimeError: unreachable</code>.
+                                We hope support will improve over time.</p>
                         </div>
                     </div>
                 </div>
