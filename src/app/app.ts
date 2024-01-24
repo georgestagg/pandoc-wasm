@@ -93,8 +93,11 @@ Object.entries(outputFormats).map(([name, props]) => {
 
 // UI
 inputSelect.onchange = () => {
+  inputTextArea.value = "";
   outputTextArea.value = "";
+  params.text = "";
   downloadButton.disabled = true;
+
   params.options.from = inputSelect.value;
   if (inputFormats[params.options.from as keyof typeof inputFormats].binary) {
     inputTextArea.parentElement!.style.display = "none";
