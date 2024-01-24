@@ -11,7 +11,7 @@ serve: build
 	npm run serve
 
 dist/pandoc-data.data.gz www/pandoc-data.data.gz: pandoc/data
-	mkdir -p $(shell dirname $@)
+	mkdir -p www dist
 	node pack.mjs
 	gzip -9f dist/pandoc-data.data
 	cp -f dist/pandoc-data.* www
