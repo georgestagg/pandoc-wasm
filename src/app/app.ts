@@ -67,10 +67,14 @@ const citeprocCheck = document.getElementById(
 // Setup
 pandocWorker.then(async (pandoc) => {
   await pandoc.init();
+
   allControls.disabled = false;
   const version = await pandoc.getVersion();
   versionText.innerText = version;
+
   downloadMessage.style.display = "none";
+  params.text = inputTextArea.value;
+  status.dirty = true;
 });
 
 Object.entries(inputFormats).map(([name, props]) => {

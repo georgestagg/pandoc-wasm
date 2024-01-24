@@ -35,7 +35,49 @@
                             <label for="inputSelect">Input format</label>
                         </div>
                         <div class="form-floating mt-3 flex-grow-1">
-                            <textarea class="form-control h-100" autocomplete="off" id="inputTextArea"></textarea>
+                            <textarea class="form-control h-100" autocomplete="off" style="font-family: monospace;"
+                                id="inputTextArea">
+---
+title: Sample Document
+author: Ann Author
+---
+
+# Heading Level 1
+
+This is a simple markdown document.
+
+## Heading Level 2
+
+Markdown can output _Italic_, **bold**, `monospace`, and ~~strikethrough~~ text.
+
+Tables can be created in markdown:
+
+| Name  | Favourite Colour |
+|-------|------------------|
+| John  | Red              |
+| Jane  | Blue             |
+
+Along with lists:
+
+    * This,
+    * That,
+    * And the Other.
+
+### Heading Level 3
+
+See below for more markdown syntax.
+
+---
+
+Links can be [made](https://en.wikipedia.org/wiki/Markdown).
+
+> Quotes can be shown.
+
+```
+// And code blocks can be given.
+print("Hello, World!")
+```
+                            </textarea>
                             <label for="inputTextArea">Input</label>
                         </div>
                         <div class="mt-3" style="display: none">
@@ -90,8 +132,8 @@
                             <label for="outputSelect">Output format</label>
                         </div>
                         <div class="form-floating mt-3 flex-grow-1">
-                            <textarea readonly class="form-control h-100" autocomplete="off"
-                                id="outputTextArea"></textarea>
+                            <textarea readonly class="form-control h-100" style="font-family: monospace;"
+                                autocomplete="off" id="outputTextArea"></textarea>
                             <label for="outputTextArea">Output</label>
                         </div>
                         <div class="form-floating my-3">
