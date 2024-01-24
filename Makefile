@@ -34,6 +34,10 @@ $(OUTPUT)/pandoc-wasm.wasm: src/Pandoc/Main.hs
 	mv -f $(OUTPUT)/rts.mjs $(OUTPUT)/rts.mjs.orig
 	awk '/WebAssembly.instantiate/ {$$0=$$0" i.exports.memory.grow(1024);"} 1' \
 	  $(OUTPUT)/rts.mjs.orig > $(OUTPUT)/rts.mjs
+# BUG: Avoid infinite loop in Asterius error handling
+	mv -f $(OUTPUT)/rts.scheduler.mjs $(OUTPUT)/rts.scheduler.mjs.orig
+	awk '/if \(tso_info.ffiRetErr\)/ {$$0=$$0" throw tso_info.ffiRetErr;"} 1' \
+	  $(OUTPUT)/rts.scheduler.mjs.orig > $(OUTPUT)/rts.scheduler.mjs
 
 PHONY: docker-container
 docker-container:
