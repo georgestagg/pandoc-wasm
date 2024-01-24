@@ -11,9 +11,10 @@ on:
 jobs:
   build-pandoc-wasm:
     name: Build pandoc-wasm
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: write
+      packages: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,10 +23,18 @@ jobs:
         with:
           node-version: 'lts/*'
           registry-url: 'https://registry.npmjs.org'
+      - name: Log in to the GitHub Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup git submodules
         run: make submodules
-      - name: Build Docker container
-        run: make docker-container
+      - name: Pull Docker container
+        run: docker pull ghcr.io/georgestagg/pandoc-wasm:main
+      - name: Tag Docker container
+        run: docker image tag ghcr.io/georgestagg/pandoc-wasm:main pandoc-wasm
       - name: Build pandoc-wasm
         run: make
       - name: Deploy to GitHub Pages
@@ -37,32 +46,3 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access=public
-  build-docker:
-    name: Build Docker image
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Log in to the GitHub Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-      - name: Setup git submodules
-        run: make submodules
-      - name: Build and publish Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
