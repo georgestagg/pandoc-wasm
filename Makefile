@@ -45,7 +45,7 @@ docker-container:
 
 PHONY: lint
 lint:
-	npx eslint $(shell find src -name '*.ts')
+	npx eslint example/src/index.js $(shell find src -name '*.ts')
 
 PHONY: clean
 clean:

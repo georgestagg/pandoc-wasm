@@ -9,14 +9,14 @@ import * as crc32c from "crc-32/crc32c";
 import { default as adler32 } from "adler-32";
 import yaml from "js-yaml";
 
-const srcUrl = (globalThis as any).document
+const srcUrl = globalThis.document
   ? (document.currentScript as HTMLScriptElement).src
   : self.location.href;
 const baseUrl = srcUrl.substring(0, srcUrl.lastIndexOf("/"));
 
 export type PandocParams = {
   text: string;
-  options: { [key: string]: any } & {
+  options: { [key: string]: unknown } & {
     from: string;
     to: string;
   };
@@ -30,12 +30,12 @@ export class Pandoc {
     crc32: typeof crc32;
     crc32c: typeof crc32c;
     adler32: typeof adler32;
-   } = { crc32, crc32c, adler32 };
+  } = { crc32, crc32c, adler32 };
   static yaml: typeof yaml = yaml;
   #runQueue: Array<{
     params: PandocParams;
-    resolve: (_: any) => void;
-    reject: (_: any) => void;
+    resolve: (_: string) => void;
+    reject: (_: string) => void;
   }> = [];
   wasm: Promise<WebAssembly.Module>;
   dataFiles: { [key: string]: ArrayBufferLike } = {};
@@ -83,13 +83,14 @@ export class Pandoc {
    * we're out of memory and reject with an error message.
    */
   #installErrorHandler() {
-    (globalThis as any).onerror = (
-      event: Event,
-      source: string,
-      lineno: number,
-      colno: number,
-      error: Error
+    globalThis.onerror = (
+      event: string | Event,
+      source: string | undefined,
+      lineno: number | undefined,
+      colno: number | undefined,
+      error: Error | undefined
     ) => {
+      if (!error) return;
       // Assume any uncaught RangeError is due to Asterius GC failure
       // TODO: Work out why GC fails, or switch to ghc-wasm-meta
       if (error.name === "RangeError" || error.name === "RuntimeError") {
@@ -119,7 +120,11 @@ export class Pandoc {
         ])
       ),
     };
-    let q: any;
+    let q: {
+      params: PandocParams;
+      resolve: (_: string) => void;
+      reject: (_: string) => void;
+    };
     return new Promise<string>((resolve, reject) => {
       q = { params, resolve, reject };
       this.#runQueue.push(q);
@@ -139,16 +144,17 @@ export class Pandoc {
           }
         })
         .catch((err) => reject(err));
-
     }).finally(() => (this.#runQueue = this.#runQueue.filter((x) => x !== q)));
   }
 
   async getVersion(): Promise<string> {
     const module = await this.wasm;
-    const instance = await rts.newAsteriusInstance(Object.assign(req, { module }));
+    const instance = await rts.newAsteriusInstance(
+      Object.assign(req, { module })
+    );
     return await instance.exports.getVersion();
   }
 }
 
-(globalThis as any).Pandoc = Pandoc;
+(globalThis as typeof globalThis & { Pandoc: typeof Pandoc }).Pandoc = Pandoc;
 export default Pandoc;

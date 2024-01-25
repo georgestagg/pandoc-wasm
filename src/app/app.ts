@@ -7,7 +7,6 @@ const PandocWorker: Comlink.Remote<typeof Pandoc> = Comlink.wrap(
   new Worker("./worker.js")
 );
 const pandocWorker = new PandocWorker();
-(globalThis as any).pandocWorker = pandocWorker;
 
 const status: {
   dirty: boolean;
