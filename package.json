@@ -2,14 +2,15 @@
   "name": "pandoc-wasm",
   "type": "module",
   "version": "0.0.1",
-  "description": "The pandoc universal markup converter compiled for WebAssembly for use in a web browser and node.",
+  "description": "The pandoc universal markup converter compiled for WebAssembly.",
   "keywords": [
     "pandoc",
     "wasm",
     "webassembly"
   ],
   "files": [
-    "dist"
+    "dist",
+    "!dist/app"
   ],
   "main": "dist/pandoc.js",
   "types": "pandoc.d.ts",
