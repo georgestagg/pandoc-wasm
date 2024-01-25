@@ -47,6 +47,10 @@ PHONY: lint
 lint:
 	npx eslint $(shell find src -name '*.ts')
 
+PHONY: clean
+clean:
+	rm -rf www dist $(OUTPUT)
+
 .PHONY: submodules
 submodules:
 	@if git submodule status | egrep -q '^[-]' ; then \
