@@ -37,13 +37,14 @@ export class Pandoc {
     resolve: (_: any) => void;
     reject: (_: any) => void;
   }> = [];
-  wasm: Promise<Uint8Array>;
+  wasm: Promise<WebAssembly.Module>;
   dataFiles: { [key: string]: ArrayBufferLike } = {};
 
   constructor() {
     this.wasm = fetch(`${baseUrl}/pandoc-wasm.wasm.gz`)
       .then((response) => response.arrayBuffer())
-      .then((gz) => Pandoc.pako.ungzip(gz));
+      .then((gz) => Pandoc.pako.ungzip(gz))
+      .then((buf) => WebAssembly.compile(buf));
 
     this.#downloadData();
     this.#installErrorHandler();
@@ -126,7 +127,6 @@ export class Pandoc {
       // TODO: Once GC is working, we won't need to recompile and instantiate
       // Pandoc again for each run.
       this.wasm
-        .then((buf) => WebAssembly.compile(buf))
         .then((module) =>
           rts.newAsteriusInstance(Object.assign(req, { module }))
         )
@@ -144,7 +144,7 @@ export class Pandoc {
   }
 
   async getVersion(): Promise<string> {
-    const module = await this.wasm.then((buf) => WebAssembly.compile(buf));
+    const module = await this.wasm;
     const instance = await rts.newAsteriusInstance(Object.assign(req, { module }));
     return await instance.exports.getVersion();
   }
