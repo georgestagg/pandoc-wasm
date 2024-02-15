@@ -35,6 +35,7 @@ function build(
     minify,
     outdir: outdir,
     platform: platform,
+    target: ['es2017', 'node16'],
     logLevel: "info",
   });
 }
