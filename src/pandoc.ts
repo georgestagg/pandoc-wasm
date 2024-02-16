@@ -9,10 +9,18 @@ import * as crc32c from "crc-32/crc32c";
 import { default as adler32 } from "adler-32";
 import yaml from "js-yaml";
 
-const srcUrl = globalThis.document
-  ? (document.currentScript as HTMLScriptElement).src
-  : self.location.href;
-const baseUrl = srcUrl.substring(0, srcUrl.lastIndexOf("/"));
+const baseUrl = "./";
+const cdnUrl = `https://cdn.jsdelivr.net/npm/pandoc-wasm@${process.env.VERSION}/dist/`;
+
+async function fallbackCdnFetch(input: string, init?: RequestInit) {
+  const baseHeaders = await fetch(`${baseUrl}${input}`, { method: "HEAD" });
+  if (baseHeaders.ok) return await fetch(`${baseUrl}${input}`, init);
+
+  const cdnResponse = await fetch(`${cdnUrl}${input}`, init);
+  if (cdnResponse.ok) return cdnResponse;
+
+  throw new Error("Can't download pandoc assets from either base or CDN URL.");
+}
 
 export type PandocParams = {
   text: string;
@@ -41,7 +49,7 @@ export class Pandoc {
   dataFiles: { [key: string]: ArrayBufferLike } = {};
 
   constructor() {
-    this.wasm = fetch(`${baseUrl}/pandoc-wasm.wasm.gz`)
+    this.wasm = fallbackCdnFetch(`pandoc-wasm.wasm.gz`)
       .then((response) => response.arrayBuffer())
       .then((gz) => Pandoc.pako.ungzip(gz))
       .then((buf) => WebAssembly.compile(buf));
@@ -61,9 +69,9 @@ export class Pandoc {
       return this.dataFiles;
     }
 
-    const gz = await fetch(`${baseUrl}/pandoc-data.data.gz`);
+    const gz = await fallbackCdnFetch(`pandoc-data.data.gz`);
     const data = Pandoc.pako.ungzip(await gz.arrayBuffer());
-    const metaFile = await fetch(`${baseUrl}/pandoc-data.metadata`);
+    const metaFile = await fallbackCdnFetch(`pandoc-data.metadata`);
     const metadata = await metaFile.json();
     if (metadata.remote_package_size != data.byteLength) {
       throw new Error(

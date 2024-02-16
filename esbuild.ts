@@ -1,4 +1,5 @@
 import esbuild from "esbuild";
+import {version} from './package.json';
 
 declare var process : {
   argv: string[];
@@ -37,6 +38,9 @@ function build(
     platform: platform,
     target: ['es2017', 'node16'],
     logLevel: "info",
+    define: {
+      'process.env.VERSION': `"${version}"`
+    }
   });
 }
 
