@@ -45,7 +45,8 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          folder: www
+          path: www
+          retention-days: 1
       - name: Publish to npm
         if: "!contains(github.ref_name, 'main')"
         env:
