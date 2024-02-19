@@ -37,8 +37,13 @@ jobs:
         run: docker image tag ghcr.io/georgestagg/pandoc-wasm:main pandoc-wasm
       - name: Build pandoc-wasm
         run: make
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Fix permissions
+        run: |
+          chmod -c -R +rX "_site/" | while read line; do
+            echo "::warning title=Invalid file permissions automatically fixed::$line"
+          done
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           folder: www
       - name: Publish to npm
@@ -46,3 +51,16 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access=public
+  deploy-github-pages:
+    needs: build-pandoc-wasm
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
