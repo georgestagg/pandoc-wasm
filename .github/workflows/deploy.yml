@@ -53,6 +53,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access=public
   deploy-github-pages:
+    if: "contains(github.ref_name, 'main')"
     needs: build-pandoc-wasm
     permissions:
       pages: write
