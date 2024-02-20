@@ -1,7 +1,7 @@
 {
   "name": "pandoc-wasm",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "The pandoc universal markup converter compiled for WebAssembly.",
   "keywords": [
     "pandoc",
