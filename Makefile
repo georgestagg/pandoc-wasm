@@ -24,10 +24,10 @@ node_modules: package.json package-lock.json
 
 $(OUTPUT)/pandoc-wasm.wasm: src/Pandoc/Main.hs
 	mkdir -p $(OUTPUT)
-	docker run --rm -v ${PWD}:/workspace -w /workspace pandoc-wasm \
+	docker run --rm -v ${PWD}:/workspace -w /workspace ghcr.io/georgestagg/pandoc-wasm:main \
 	  ahc-cabal install --allow-older=base --builddir /root/_ahc/build \
 	  --installdir $(OUTPUT) --install-method copy --overwrite-policy always
-	docker run --rm -v ${PWD}:/workspace -w /workspace pandoc-wasm \
+	docker run --rm -v ${PWD}:/workspace -w /workspace ghcr.io/georgestagg/pandoc-wasm:main \
 	   ahc-dist --no-main --browser --input-exe $(OUTPUT)/pandoc-wasm \
 	   --output-directory $(OUTPUT) --yolo
 # Grow wasm memory heap as part of Haskell runtime initalisation
@@ -41,7 +41,8 @@ $(OUTPUT)/pandoc-wasm.wasm: src/Pandoc/Main.hs
 
 PHONY: docker-container
 docker-container:
-	docker build -t pandoc-wasm .
+#	docker build -t pandoc-wasm .
+	docker pull ghcr.io/georgestagg/pandoc-wasm:main
 
 PHONY: lint
 lint:
