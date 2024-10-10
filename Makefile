@@ -39,9 +39,14 @@ $(OUTPUT)/pandoc-wasm.wasm: src/Pandoc/Main.hs
 	awk '/if \(tso_info.ffiRetErr\)/ {$$0=$$0" throw tso_info.ffiRetErr;"} 1' \
 	  $(OUTPUT)/rts.scheduler.mjs.orig > $(OUTPUT)/rts.scheduler.mjs
 
+PHONY: build-docker-container
+build-docker-container:
+	docker build -t pandoc-wasm .
+
 PHONY: docker-container
 docker-container:
-	docker build -t pandoc-wasm .
+	docker pull ghcr.io/georgestagg/pandoc-wasm:main
+	docker image tag ghcr.io/georgestagg/pandoc-wasm:main pandoc-wasm
 
 PHONY: lint
 lint:

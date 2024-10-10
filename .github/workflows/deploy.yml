@@ -31,10 +31,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup git submodules
         run: make submodules
-      - name: Pull Docker container
-        run: docker pull ghcr.io/georgestagg/pandoc-wasm:main
-      - name: Tag Docker container
-        run: docker image tag ghcr.io/georgestagg/pandoc-wasm:main pandoc-wasm
+      - name: Setup Docker container
+        run: make docker-container
       - name: Build pandoc-wasm
         run: make
       - name: Fix permissions
