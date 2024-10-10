@@ -74,6 +74,20 @@ Pandoc can be run from inside a Web Worker. I recommend the [Comlink](https://gi
 
 * No Lua filters right now. I _think_ it should be possible to compile a C Lua interpreter using [Emscripten](https://emscripten.org) (or something similar), then hook it up to the Pandoc wasm binary through a JS FFI.
 
+## Quick Development
+
+A Docker development container has been built containing the required prerequisites for building Pandoc for WebAssembly using Asterius. The following commands are a possible simplified route to get up and running:
+
+```
+git clone https://github.com/georgestagg/pandoc-wasm
+cd pandoc-wasm
+npm install
+make submodules
+make docker-container
+make
+```
+
+See the included `Dockerfile` for more details about the pre-built development container.
 
 ## Related Projects
 
