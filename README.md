@@ -1,3 +1,15 @@
+# Update: This project is archived
+
+Please see Tweag's `pandoc-wasm` for an improved implemenation of Pandoc on WebAssembly: https://github.com/tweag/pandoc-wasm
+
+## Why archive this project?
+
+This project used Asterius to compile Pandoc's Haskell code, which has been deprecated in favour of the newer [ghc-wasm-meta](https://gitlab.haskell.org/ghc/ghc-wasm-meta) version of the GHC compiler. Tweag's newer [`pandoc-wasm`](https://github.com/tweag/pandoc-wasm) project uses the GHC compiler and so has a much better engineering foundation. I recommend that future work on Pandoc for WebAssembly be targeted towards that project, rather than this one.
+
+I have kept the original `README.md` content below, for historical purposes.
+
+---
+
 # Pandoc on WebAssembly
 
 The universal document converter, compiled for WebAssembly and running in the browser.
